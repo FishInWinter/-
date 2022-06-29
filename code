@@ -1,0 +1,185 @@
+
+%% ==================== Part 1: Basic Function ====================
+%% ==================== Part 1: 测试octave ====================
+% Complete warmUpExercise.m
+
+1;
+fprintf('Running warmUpExercise ... \n');
+fprintf('5x5 Identity Matrix: \n');
+function A = warmUpExercise()
+%WARMUPEXERCISE Example function in octave
+%   A = WARMUPEXERCISE() is an example function that returns the 5x5 identity matrix
+
+A = [];
+% ============= YOUR CODE HERE ==============
+% Instructions: Return the 5x5 identity matrix
+%               In octave, we return values by defining which variables
+%               represent the return values (at the top of the file)
+%               and then set them accordingly.
+
+A = eye(5) %输出一个 5x5 的单位矩阵
+
+% ===========================================
+
+end
+
+
+
+
+warmUpExercise()
+
+fprintf('Program paused. Press enter to continue.\n');
+
+
+%% ======================= Part 1结束 =======================
+
+
+%绘图程序
+%   x,y为两个标签数据
+function plotData(x, y)
+figure; %开启一个图片窗口
+plot(x, y, 'rx', 'MarkerSize', 10); %'rx'表明对于每个(xi, yi)采用红色x号来标识，而'MarkerSize', 10表明将标记的大小设置为10
+xlabel('Population of City in 10,000s'); %修改x轴的标签
+ylabel('Profit in $10,000s'); %修改y轴的标签
+end
+
+
+
+%% ======================= Part 2: 画图 =======================
+fprintf('Plotting Data ...\n')
+data = load('C:\Users\lwy\Desktop\ex1data1.txt'); %读取逗号分隔的两列数据
+X = data(:, 1); y = data(:, 2); %X, y分别为第一、二列数据
+m = length(y); % number of training examples %数据集的大小
+
+% Plot Data
+% Note: You have to complete the code in plotData.m
+plotData(X, y); %将数据通过该函数可视化呈现
+
+fprintf('Program paused. Press enter to continue.\n');
+
+
+
+%% =================== Part 3: 损失函数和下降函数 ===================
+
+
+%%计算损失的函数
+
+%在本例中therea为一个两行一列的参数表
+function J = computeCost(X, y, theta)
+
+m = length(y); % 得到标签列的长度
+
+% You need to return the following variables correctly
+J = 0;
+
+% 计算损失核心代码
+
+J = sum((X*theta-y).^2) / (2*m);
+end
+%计算损失的函数——结束
+
+%梯度下降代码
+%J_history目前没什么用
+function [theta, J_history] = gradientDescent(X, y, theta, alpha, num_iters)
+
+
+m = length(y); %得到标签类长度
+J_history = zeros(num_iters, 1);%初始化迭代历史
+
+%迭代
+for iter = 1:num_iters
+    theta_t = theta; %定义一个theta的临时变量，用来存储每次迭代发生前的theta，以确保梯度下降每次迭代theta是同时更新的
+    theta(1) = theta(1) - alpha/m*sum((X*theta_t-y));%对参数1求偏导
+    theta(2) = theta(2) - alpha/m*sum((X*theta_t-y).*X(:,2));%对参数2求偏导
+
+    
+    % 存储每一次迭代
+    J_history(iter) = computeCost(X, y, theta);
+
+end
+%迭代结束
+end
+%梯度下降代码结束
+
+X = [ones(m, 1), data(:,1)]; %为其最左边增加1列 添加x_0，并且全为1
+theta = zeros(2, 1); % 初始化theta为全0
+
+% Some gradient descent settings
+iterations = 1500; %迭代次数
+alpha = 0.01; %学习率
+
+fprintf('\nTesting the cost function ...\n')
+% compute and display initial cost
+J = computeCost(X, y, theta); %计算theta初始化为全0时的代价，得到的值四舍五入应为32.07
+fprintf('With theta = [0 ; 0]\nCost computed = %f\n', J);
+fprintf('Expected cost value (approx) 32.07\n');
+
+% further testing of the cost function
+J = computeCost(X, y, [-1 ; 2]); %计算theta为[-1; 2]时的代价，得到的值四舍五入应为54.24
+fprintf('\nWith theta = [-1 ; 2]\nCost computed = %f\n', J);
+fprintf('Expected cost value (approx) 54.24\n');
+
+fprintf('Program paused. Press enter to continue.\n');
+pause;
+
+fprintf('\nRunning Gradient Descent ...\n')
+% run gradient descent
+theta = gradientDescent(X, y, theta, alpha, iterations); %进行梯度下降
+
+% 打印梯度下降后的结果
+fprintf('Theta found by gradient descent:\n');
+fprintf('%f\n', theta);
+fprintf('Expected theta values (approx)\n');
+fprintf(' -3.6303\n  1.1664\n\n');
+
+% Plot the linear fit
+hold on; % 在同一张图上作画
+plot(X(:,2), X*theta, '-') %画出拟合的直线
+legend('Training data', 'Linear regression')
+hold off % 结束该图
+
+% 回归函数的预测 这里可以看到之后才放大的
+predict1 = [1, 3.5] *theta;
+fprintf('For population = 35,000, we predict a profit of %f\n',...
+    predict1*10000);
+predict2 = [1, 7] * theta;
+fprintf('For population = 70,000, we predict a profit of %f\n',...
+    predict2*10000);
+
+fprintf('Program paused. Press enter to continue.\n');
+pause;
+
+
+%% ============= Part 4:可视化损失(theta_0, theta_1) =============
+fprintf('Visualizing J(theta_0, theta_1) ...\n')
+
+% 各个不同的参数，从-10到10 从-1到4
+theta0_vals = linspace(-10, 10, 100);
+theta1_vals = linspace(-1, 4, 100);
+
+% 初始化J_val
+J_vals = zeros(length(theta0_vals), length(theta1_vals));
+
+% 为每个不同参数计算损失，并放入J_vals
+for i = 1:length(theta0_vals)
+    for j = 1:length(theta1_vals)
+	  t = [theta0_vals(i); theta1_vals(j)];
+	  J_vals(i,j) = computeCost(X, y, t); %得到不同theta下的代价
+    end
+end
+
+
+% 矩阵转置
+J_vals = J_vals';
+% Surface plot
+figure;
+surf(theta0_vals, theta1_vals, J_vals) %画出不同theta下代价的surface图
+xlabel('\theta_0'); ylabel('\theta_1');
+
+% Contour plot
+figure;
+% Plot J_vals as 15 contours spaced logarithmically between 0.01 and 100
+contour(theta0_vals, theta1_vals, J_vals, logspace(-2, 3, 20)) %画出不同theta下代价的等高线图
+xlabel('\theta_0'); ylabel('\theta_1');
+hold on;
+plot(theta(1), theta(2), 'rx', 'MarkerSize', 10, 'LineWidth', 2); %画出梯度下降后theta的位置
