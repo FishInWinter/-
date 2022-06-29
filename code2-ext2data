@@ -1,0 +1,99 @@
+%%==========Part 1 特征值标准化===============
+
+fprintf("加载数据\n")%出现值重叠情况，忽略
+%%加载数据
+data=load('C:\Users\lwy\Desktop\ex1data2.txt');%读取数据
+X=data(:,1:2);%含两个变量
+y=data(:,3);
+m=length(y);%长度
+%打印前十行数据
+fprintf("数据集的前十行数据：\n");
+fprintf('x=[%.0f %.0f],y=%.0f\n',[X(1:10,:) y(1:10,:)]');
+fprintf("暂停，按 enter 继续");
+pause;
+%损失函数
+function J = computeCostMulti(X, y, theta)
+
+m = length(y); % 长度
+J = 0;
+J = sum((X*theta-y)'*(X*theta-y)) / (2*m);
+end
+%end 损失函数
+
+%梯度下降
+function [theta, J_history] = gradientDescentMulti(X, y, theta, alpha, num_iters)
+m = length(y); % number of training examples
+J_history = zeros(num_iters, 1);
+
+for iter = 1:num_iters
+    theta_t = theta; %定义一个theta的临时变量，用来存储每次迭代发生前的theta，以确保梯度下降每次迭代theta是同时更新的
+    theta = theta - (alpha/m)*((X')*(X*theta_t-y));%采用矢量化方法 矩阵相乘
+
+
+    % Save the cost J in every iteration
+    J_history(iter) = computeCostMulti(X, y, theta);
+
+end
+%end for
+end
+%end 梯度下降
+%归一化函数
+function[X_norm,mu,sigma]=featureNormalize(X)
+X_norm=X;
+mu=zeros(1,size(X,2))%初始化
+sigma=zeros(1,size(X,2));%初始化
+for i=1:size(X,2)
+  mu(i) =mean(X(:,i));%得到两个特征的平均值
+  sigma(i)=std(X(:,i));%得到两个特征的标准差
+  X_norm(:,i)=(X(:,i)-mu(:,i))/sigma(:,i);%得到两个特征的归一化数值
+end
+%end for
+X_norm(1:10,:)%展示前十归一化
+
+end
+%end fun
+
+%归一化特征值
+fprintf("归一化特征\n");
+[X mu sigma]=featureNormalize(X);%数据归一化
+
+X=[ones(m,1) X];%给X增加一维
+
+
+fprintf("运行梯度下降...\n");
+num_iters=400;%迭代次数
+%学习率维0.01
+alpha=0.01;%学习率
+theta=zeros(3,1);%3行1列 初始化
+[theta,J_history]=gradientDescentMulti(X,y,theta,alpha,num_iters);
+%学习率维0.01 end
+
+%学习率维0.1
+alpha=0.1;%学习率
+theta=zeros(3,1);%3行1列 初始化
+[theta1,J_history1]=gradientDescentMulti(X,y,theta,alpha,num_iters);
+%学习率维0.1 end
+
+%学习率维1
+alpha=1;%学习率
+theta=zeros(3,1);%3行1列 初始化
+[theta2,J_history2]=gradientDescentMulti(X,y,theta,alpha,num_iters);
+%学习率维1 end
+
+figure;%绘图
+hold on;
+plot(1:numel(J_history),J_history,'-b','LineWidth',2);
+
+plot(1:numel(J_history1),J_history1,'-g','LineWidth',2);
+
+plot(1:numel(J_history2),J_history2,'-r','LineWidth',2);
+
+legend('0.01','0.1','1');
+
+xlabel('迭代次数');
+ylabel('损失 J');
+
+%展示梯度下降结果
+fprintf("计算的梯度下降为:\n");
+fprintf('%f\n',theta);
+fprintf('\n');
