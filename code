@@ -1,37 +1,5 @@
 
-%% ==================== Part 1: Basic Function ====================
-%% ==================== Part 1: 测试octave ====================
-% Complete warmUpExercise.m
-
-1;
-fprintf('Running warmUpExercise ... \n');
-fprintf('5x5 Identity Matrix: \n');
-function A = warmUpExercise()
-%WARMUPEXERCISE Example function in octave
-%   A = WARMUPEXERCISE() is an example function that returns the 5x5 identity matrix
-
-A = [];
-% ============= YOUR CODE HERE ==============
-% Instructions: Return the 5x5 identity matrix
-%               In octave, we return values by defining which variables
-%               represent the return values (at the top of the file)
-%               and then set them accordingly.
-
-A = eye(5) %输出一个 5x5 的单位矩阵
-
-% ===========================================
-
-end
-
-
-
-
-warmUpExercise()
-
-fprintf('Program paused. Press enter to continue.\n');
-
-
-%% ======================= Part 1结束 =======================
+%% ======================= Part 1绘图程序 =======================
 
 
 %绘图程序
@@ -42,7 +10,7 @@ plot(x, y, 'rx', 'MarkerSize', 10); %'rx'表明对于每个(xi, yi)采用红色x
 xlabel('Population of City in 10,000s'); %修改x轴的标签
 ylabel('Profit in $10,000s'); %修改y轴的标签
 end
-
+%绘图程序结束
 
 
 %% ======================= Part 2: 画图 =======================
