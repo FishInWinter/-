@@ -1,0 +1,118 @@
+
+%%---------加载数据---------
+data =load('ex2data1.txt')
+X=data(:,[1,2]);%第一二列数据
+y=data(:,3);%第三列数据
+%%---------加载数据结束
+
+
+
+%%---------画图函数--------------
+function plotData(X,y)
+ figure;
+ hold on;
+ pos=find(y==1);%找出正标签
+ neg=find(y==0);%找出负标签
+ %绘画正标签
+ plot(X(pos,1),X(pos,2),'k+','lineWidth',2,'MarkerSize',7);
+%绘画负标签
+plot(X(neg,1),X(neg,2),'ko','MarkerFaceColor','y','MarkerSize',7);
+hold off;
+end;
+%%----------画图函数end------------
+
+%%----------数据可视化-------------
+plotData(X,y);
+hold on;
+xlabel('exam 1 score');
+ylabel('exam 2 score');
+
+legend('Admitted', 'Not admitted');
+hold off;
+%%-----------数据可视化end----------
+%%-------------------逻辑回归实现------------------------------
+%%指数函数
+function g=sigmoid(z)
+g=zeros(size(z));%初始化
+g=power(1+exp(-z),-1);%指数函数
+end
+%%指数函数end
+
+%%------------------损失函数----------------------------------
+function[J,grad]=costFunction(theta,X,y)
+m=length(y);%训练样本长度
+%初始化两个值
+J=0;
+grad=zeros(size(theta));
+h=sigmoid(X*theta);
+J=((-y)'*log(h)-(1-y)'*log(1-h))/m;%将两个损失合一，
+grad=((h-y)'*X)'./m;%偏导之后的结果
+end
+
+%%------------------损失函数end-------------------------------
+
+
+%%-------------计算损失和梯度--------
+[m,n]=size(X);%行数 列数
+X=[ones(m,1) X];%加一列
+
+initial_theta=zeros(n+1,1);%初始化theta
+[cost,grad]=costFunction(initial_theta,X,y);
+fprintf('一开始的损失为:%f\n',cost);
+fprintf('期望的损失为：0.693\n');
+fprintf('一开始下降的梯度：\n');
+fprintf('%f\n',grad);
+fprintf('Expected gradients (approx):\n -0.1000\n -12.0092\n -11.2628\n');
+%---------使用优化参数fminumc求解-------------------------------
+
+%设置fminunc参数
+options=optimset('GradObj','on','MaxIter',400);
+
+%求解，使用costFunction
+[theta,cost]=fminunc(@(t)(costFunction(t,X,y)),initial_theta,options);
+
+% Print theta to screen
+fprintf('Cost at theta found by fminunc: %f\n', cost);
+fprintf('Expected cost (approx): 0.203\n');
+fprintf('theta: \n');
+fprintf(' %f \n', theta);
+fprintf('Expected theta (approx):\n');
+fprintf(' -25.161\n 0.206\n 0.201\n');
+%----------绘制决策边界————————————————————
+function plotDecisionBoundary(theta, X, y);
+%PLOTDECISIONBOUNDARY 此处显示有关此函数的摘要
+%   此处显示详细说明
+plotData(X(:,2:3),y);
+hold on;
+
+if size(X,2)<=3
+    plot_x=[min(X(:,2))-2,max(X(:,2))+2];%第一个特征量的范围为横轴
+    plot_y=(-1./theta(3)).*(theta(2).*plot_x+theta(1));
+    %决策边界是X*theta=0的值 theta0+theta1.x1+theta2.x2
+    plot( plot_x, plot_y);
+else
+    u=linspace(-1,1.5,50);
+    v=linspace(-1,1.5,50);
+    z=zeros(length(u),length(v));
+
+    for i=1:length(u)
+        for j=1:length(v)
+            %u,v表示待映射的特征量
+            z(i,j)=mapFeature(u(i),v(j))*theta;
+        end;
+    end;
+    z=z';
+
+    contour(u,v,z,[0,0],'LineWidth',3);%决策边界的方程是X*theta=0 即z=0
+end
+end
+%---------绘制决策边界end-------
+plotDecisionBoundary(theta,X,y);
+
+hold on;
+
+xlabel('exam 1 score');
+ylabel('exam 2 score');
+
+legend('Admitted','Not admitted');
+hold off;
